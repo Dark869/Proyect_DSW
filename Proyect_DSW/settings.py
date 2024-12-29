@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-#from decouple import config
+from decouple import config
 from pathlib import Path
 
 
@@ -78,15 +78,15 @@ WSGI_APPLICATION = 'Proyect_DSW.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.mysql',
-        #'NAME': config('DB_NAME'),
-        #'USER': config('DB_USER'),
-        #'PASSWORD': config('DB_PASSWORD'),
-        #'HOST': config('DB_HOST'),
-        #'PORT': config('DB_PORT'),
-        #'OPTIONS': {
-        #    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        #},
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
