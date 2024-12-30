@@ -1,0 +1,45 @@
+{% extends "PagesNoProtected.html" %}
+{% block titulo %}Verificación de firma{% endblock %}
+{% load static %}
+{% block estilos %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+{% endblock %}
+{% block encabezado %}VERIFICAR FIRMA{% endblock %}
+{% block contenido %}
+<div class="row container">
+    <div class="col-md-12 d-flex justify-content-center">
+        <form action="/login/" method="POST" class="w-100">
+            {% csrf_token %}
+            <div class="row m-4 text-center">
+                <div class="col pg-3">
+			<label for="name" class="text-white"><h4>Subir Archivo</h4></label>
+			<input type="file" name="archivo" id="archivo" class="btn btn-primary">
+		</div>
+		<div class="col pg-3">
+		<label for="name" class="text-white"><h4>Subir Firma</h4></label>
+		<input type="file" name="firma" id="firma" class="btn btn-primary">
+                </div>
+	    </div>
+	    <br>
+	    <div class="row m-5 text-center">
+                <div class="col-sm-3 col-md-6">
+			<label for="name" class="text-white"><h4>Usuario de la firma</h4></label>
+              <input type="text" name="user" id="user" class="form-control">  		      </div>
+                <div class="col-sm-9 col-md-6">
+			<button type="submit" name="submit" id="submit" class="btn btn-info"><h4>VERIFICAR FIRMA</h4></button>
+		</div>
+            </div>
+            {% if errors %}
+            <div id="errores" class="alert alert-danger mt-3">
+                <strong>Errores:</strong>
+                <ul id="lista-errores" class="mb-0">
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
