@@ -2,7 +2,6 @@
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.shortcuts import render, redirect
-from django.db import IntegrityError
 from db import models
 import Proyect_DSW.settings as config
 #Librerias para la generacion de llaves
@@ -119,6 +118,10 @@ def register(request):
             errores.append('Los campos no deben ir vacios')
         if passw != confirpasswd:
             errores.append('Las contraseñas no son iguales')
+        if models.User.objects.filter(nick = nick).exists():
+            errores.append('Nick ya registrado')
+        if models.User.objects.filter(email = email).exists():
+            errores.append('Correo ya registrado')
         if errores:
             #request.session['logueado'] = False
             return render(request, t, {'errores': errores})
@@ -132,12 +135,8 @@ def register(request):
             cifrado = cifrar(key_private, llave_AES, iv)
             #hashear contraseña
             passwd_cifrado = password_hash(passw)
-            try:
-                usuario = models.User(full_name = name, nick = nick, email = email, passwd = passwd_cifrado)
-                usuario.save()
-            except IntegrityError:
-                errores.append('Nick ya registrado')
-                return render(request, t, {'errores': errores})
+            usuario = models.User(full_name = name, nick = nick, email = email, passwd = passwd_cifrado)
+            usuario.save()
             keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv)
             keys.save()
             return redirect('/login')
