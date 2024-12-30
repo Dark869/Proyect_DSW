@@ -24,6 +24,12 @@
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
+                    <label for="name" class="text-white">Nick:</label>
+                    <input type="text" name="nick" id="nick" class="form-control">
+                </div>
+            </div>
+            <div class="row m-4">
+                <div class="col-md-12">
                     <label for="passwd" class="text-white">Contraseña:</label>
                     <input type="password" name="passwd" id="passwd" class="form-control">
                 </div>
@@ -32,6 +38,12 @@
                 <div class="col-md-12">
                     <label for="confirmPasswd" class="text-white">Confirmar contraseña:</label>
                     <input type="password" name="confirmPasswd" id="confirmPasswd" class="form-control">
+                </div>
+            </div>
+            <div class="row m-4">
+                <div class="col-md-12">
+                    <label for="name" class="text-white">Correo electronico:</label>
+                    <input type="email" name="mail" id="mail" class="form-control">
                 </div>
             </div>
             <div class="row m-4 text-center">
@@ -43,7 +55,7 @@
             <div id="errores" class="alert alert-danger mt-3">
                 <strong>Errores:</strong>
                 <ul id="lista-errores" class="mb-0">
-                    {% for error in errors %}
+                    {% for error in errores %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
