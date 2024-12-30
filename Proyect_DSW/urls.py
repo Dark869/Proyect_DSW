@@ -9,4 +9,6 @@ urlpatterns = [
     path('', views.home_view),
     path('login/', dbVistas.login),
     path('register/', dbVistas.register),
+    path('vfirma/', views.verificarFirma_view),
+    path('gllaves/', views.gestorLLaves_view),
 ]
