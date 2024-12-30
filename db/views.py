@@ -2,6 +2,8 @@
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.shortcuts import render, redirect
+from django.db import IntegrityError
+from db import models
 import Proyect_DSW.settings as config
 #Librerias para la generacion de llaves
 from cryptography.hazmat.backends import default_backend
@@ -70,6 +72,7 @@ def generar_llave_aes(password):
 
 
 def cifrar(mensaje, llave_aes, iv):
+    mensaje = b'mensaje'
     aesCipher = Cipher(algorithms.AES(llave_aes), modes.CTR(iv),
                        backend=default_backend())
     cifrador = aesCipher.encryptor()
@@ -86,6 +89,15 @@ def descifrar(cifrado, llave_aes, iv):
     descifrador.finalize()
     return plano
 
+#=============== Funcion para hashear contraseña ========
+
+def password_hash(password):
+    pw_encode = password.encode('utf-8')
+    hasher = hashlib.sha512()
+    hasher.update(pw_encode)
+    new_hash = hasher.hexdigest()
+    return new_hash
+
 #=============== Funcion de registro ===================
 def register(request):
     t = 'register.html'
@@ -94,20 +106,18 @@ def register(request):
     elif request.method == 'POST':
         name = request.POST.get('name', '')
         nick = request.POST.get('nick', '')
-        passwd = request.POST.get('passwd', '')
+        passw = request.POST.get('passwd', '')
         confirpasswd = request.POST.get('confirmPasswd', '')
         email = request.POST.get('mail', '')
-
         name = name.strip()
         nick = nick.strip()
-        passwd = passwd.strip()
+        passw = passw.strip()
         confirpasswd = confirpasswd.strip()
         email = email.strip()
-
         errores = []
-        if not name or not nick or not passwd or not confirpasswd or not email:
+        if not name or not nick or not passw or not confirpasswd or not email:
             errores.append('Los campos no deben ir vacios')
-        if passwd == confirpasswd:
+        if passw != confirpasswd:
             errores.append('Las contraseñas no son iguales')
         if errores:
             #request.session['logueado'] = False
@@ -117,8 +127,17 @@ def register(request):
             key_private = generar_llave_privada()
             key_public = generar_llave_publica(key_private)
             #Cifrar llave privada
-            llave_AES = generar_llave_aes(passwd)
+            llave_AES = generar_llave_aes(passw)
             iv = os.urandom(16)
             cifrado = cifrar(key_private, llave_AES, iv)
-            #
+            #hashear contraseña
+            passwd_cifrado = password_hash(passw)
+            try:
+                usuario = models.User(full_name = name, nick = nick, email = email, passwd = passwd_cifrado)
+                usuario.save()
+            except IntegrityError:
+                errores.append('Nick ya registrado')
+                return render(request, t, {'errores': errores})
+            keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv)
+            keys.save()
             return redirect('/login')
