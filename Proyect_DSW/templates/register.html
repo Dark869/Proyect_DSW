@@ -1,4 +1,4 @@
-{% extends "PagesNoProtected.html" %}
+{% extends "pagesNoProtected.html" %}
 
 {% block titulo %}Registro{% endblock %}
 {% load static %}
@@ -19,37 +19,42 @@
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="name" class="text-white">Nombre de usuario:</label>
-                    <input type="text" name="name" id="name" class="form-control">
+                    <input type="text" name="name" id="name" class="form-control" required>
                 </div>
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="name" class="text-white">Nick:</label>
-                    <input type="text" name="nick" id="nick" class="form-control">
+                    <input type="text" name="nick" id="nick" class="form-control" required>
                 </div>
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="passwd" class="text-white">Contraseña:</label>
-                    <input type="password" name="passwd" id="passwd" class="form-control">
+                    <input type="password" name="passwd" id="passwd" class="form-control" required>
                 </div>
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="confirmPasswd" class="text-white">Confirmar contraseña:</label>
-                    <input type="password" name="confirmPasswd" id="confirmPasswd" class="form-control">
+                    <input type="password" name="confirmPasswd" id="confirmPasswd" class="form-control" required>
                 </div>
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="name" class="text-white">Correo electronico:</label>
-                    <input type="email" name="mail" id="mail" class="form-control">
+                    <input type="email" name="mail" id="mail" class="form-control" required>
                 </div>
             </div>
             <div class="row m-4 text-center">
                 <div class="col-md-12">
                     <button type="submit" name="submit" id="submit" class="btn btn-primary">Registrarse</button>
                 </div>
+            </div>
+            <div style="display:none" id="errors" class="alert alert-danger mt-3">
+                <strong>Errores:</strong>
+                <ul id="lista-errors">  
+                </ul>
             </div>
             {% if errores %}
             <div id="errores" class="alert alert-danger mt-3">
