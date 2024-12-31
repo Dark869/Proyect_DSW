@@ -11,4 +11,5 @@ urlpatterns = [
     path('register/', dbVistas.register),
     path('vfirma/', views.verificarFirma_view),
     path('gllaves/', views.gestorLLaves_view),
+    path('logout/', views.logout_view),
 ]

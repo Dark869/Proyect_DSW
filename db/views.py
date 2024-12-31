@@ -147,8 +147,11 @@ def login(request):
             models.User.objects.get(nick=nick, passwd=passwd_cifrado)
         except:
             errores.append('nick o contraseña incorrectos')
+            request.session['logged'] = False
         
         if errores:
             return render(request, t, {'errores': errores})
         else:
-            return redirect('/vfirma')
+            request.session['logged'] = True
+            request.session['user'] = nick
+            return redirect('/')
