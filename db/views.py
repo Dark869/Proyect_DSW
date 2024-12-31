@@ -17,37 +17,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import os
 #Librerias para hashear
 import hashlib
-
-# Create your views here.
-
-def login(request):
-    t = 'login.html'
-    if request.method == 'GET':
-        return render(request, t)
-    elif request.method == 'POST':
-        usuario = request.POST.get('usuario', '')
-        password = request.POST.get('password', '')
-        usuario = usuario.strip()
-        password = password.strip()
-        errores = []
-        if not usuario or not password:
-            errores.append('El usuario o contraseña no pueden estar vacíos')
-        try:
-            pss_codificada = password.encode('utf-8')
-            hasher = hashlib.sha256()
-            hasher.update(pss_codificada)
-            hash_final = hasher.hexdigest()
-            models.Usuarios.objects.get(user=usuario, passH=hash_final)
-        except:
-            errores.append('Usuario o contraseña incorrectos')
-        
-        if errores:
-            request.session['logueado'] = False
-            return render(request, t, {'errores': errores})
-        request.session['logueado'] = True
-        request.session['usuario'] = usuario
-        return redirect('/modal')
-    
+#Libreria para expresiones regulares
+import re
 
 #========= Funciones para generar llaves =====================
 
@@ -97,6 +68,19 @@ def password_hash(password):
     new_hash = hasher.hexdigest()
     return new_hash
 
+#=============== Funcion de politica de contraseña ======
+
+def politica_pass(passwd):
+    patron_digito = r'\d'
+    patron_mayuscula = r'[A-Z]'
+    patron_especial = r'[!@#$%^&*()_+=-]'
+    return (
+        len(passwd) >= 12
+        and re.search(patron_digito, passwd)
+        and re.search(patron_mayuscula, passwd)
+        and re.search(patron_especial, passwd)
+    )
+
 #=============== Funcion de registro ===================
 def register(request):
     t = 'register.html'
@@ -122,8 +106,9 @@ def register(request):
             errores.append('Nick ya registrado')
         if models.User.objects.filter(email = email).exists():
             errores.append('Correo ya registrado')
+        if not politica_pass(passw):
+            errores.append('La contraseña debe tener al menos 12 caracteres, una mayúscula, un número y un caracter especial.')
         if errores:
-            #request.session['logueado'] = False
             return render(request, t, {'errores': errores})
         else:
             #Generacion de llaves
@@ -140,3 +125,30 @@ def register(request):
             keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv)
             keys.save()
             return redirect('/login')
+        
+#========== Funcion de login ===============
+
+def login(request):
+    t = 'login.html'
+    if request.method == 'GET':
+        return render(request, t)
+    elif request.method == 'POST':
+        nick = request.POST.get('nick', '')
+        passwd = request.POST.get('passwd', '')
+        nick = nick.strip()
+        passwd = passwd.strip()
+        errores = []
+        if not nick or not passwd:
+            errores.append('El usuario o contraseña no pueden estar vacíos')
+            return render(request, t, {'errores': errores})
+        try:
+            #hashear contraseña
+            passwd_cifrado = password_hash(passwd)
+            models.User.objects.get(nick=nick, passwd=passwd_cifrado)
+        except:
+            errores.append('nick o contraseña incorrectos')
+        
+        if errores:
+            return render(request, t, {'errores': errores})
+        else:
+            return redirect('/vfirma')
