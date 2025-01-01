@@ -4,43 +4,41 @@
 {% block estilos %}
 <link rel="stylesheet" href="{% static 'styles/login.css' %}">
 {% endblock %}
+{% block scripts %}
+<script src="{% static 'scripts/newkeys.js' %}"></script>
+{% endblock %}
 {% block encabezado %}GESTIONAR LLAVES{% endblock %}
 {% block contenido %}
-<div class="row container">
-    <div class="col-md-12 d-flex justify-content-center">
-        <form action="/login/" method="POST" class="w-100">
-            {% csrf_token %}
-            <div class="row m-4 text-center">
-		    <div class="col pg-3">
-			<a href="https://github.com/Dark869/Proyect_DSW/archive/refs/heads/dev-2.zip" download>
-				<button type="button" class="btn btn-warning" style="padding: 30px 50px;"><h3>Llave Pública</h3></button>
-			</a>
-			<label for="name" class="text-white"><h5>Descargar</h5></label>
-		</div>
-		<div class="col pg-3">
-		        <a href="https://github.com/Dark869/Proyect_DSW/archive/refs/heads/dev-2.zip" download>
-				<button type="button" class="btn btn-warning" style="padding: 30px 50px;"><h3>Llave Privada</h3></button>
-                        </a>
-		<label for="name" class="text-white"><h5>Descargar</h5></label>
-                </div>
+<div class="container">
+    <div class="text-white">
+        <h1>¡Atención {{ username }}!</h1> 
+        <p>Al crear nuevas llaves se eliminarán sus llaves anteriores. ¿Estás seguro de continuar?</p>
+    </div>
+    <form action="/gllaves/" id="formulario" method="POST" class="w-100">
+        {% csrf_token %}
+        <div class="mb-3 mt-3">
+            <label for="passwd" class="text-white">Contraseña:</label>
+            <input type="password" name="passwd" id="passwd" class="form-control">
+            <div class="valid-feedback">OK</div>
+        </div>
+	    <div class="col pg-3">
+		    <button type="submit" name="generarLlaves" id="generarLlaves" class="btn btn-info">GENERAR NUEVO PAR DE LLAVES</button>
 	    </div>
-	    <br>
-	    <div class="row m-5 text-center">
-		    <div class="col pg-3">
-			<button type="submit" name="generarLlaves" id="generarLlaves" class="btn btn-info"><h4>GENERAR NUEVO PAR DE LLAVES</h4></button>
-		    </div>
-            </div>
-            {% if errors %}
+        <div style="display:none" id="errors" class="alert alert-danger mt-3">
+            <strong>Errores:</strong>
+            <ul id="lista-errors">  
+            </ul>
+        </div>
+        {% if errores %}
             <div id="errores" class="alert alert-danger mt-3">
                 <strong>Errores:</strong>
                 <ul id="lista-errores" class="mb-0">
-                    {% for error in errors %}
+                    {% for error in errores %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             </div>
-            {% endif %}
-        </form>
-    </div>
-</div>
+        {% endif %}
+    </form>
+</div>  
 {% endblock %}
