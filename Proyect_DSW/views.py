@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .controllers.decorator import login_request
+from .controllers.signFile import sing_file
 
 @login_request
 def index_view(request):
@@ -8,7 +9,15 @@ def index_view(request):
 @login_request
 def home_view(request):
     username = request.session.get('user')
-    return render(request, 'signatureFile.html', {'username': username})
+
+    if request.method == 'GET':
+        return render(request, 'signatureFile.html', {'username': username})
+    else:
+        file = request.POST.get('file')
+        passwd = request.POST.get('passwd')
+        sing_file(passwd, file, username)
+        return render(request, 'signatureFile.html', {'username': username})
+
 
 @login_request
 def gestorLLaves_view(request):
