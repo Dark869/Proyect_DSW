@@ -137,16 +137,16 @@ def verificarFirma_view(request):
             key_public = key.public_key_file
             file_bytes = file.read()
             file_firma_bytes = file_firmado.read()
-            #try:
-            key_public = codigo.convertir_bytes_llave_publica(key_public)
-            key_public.verify(file_firma_bytes, file_bytes, ec.ECDSA(hashes.SHA256()))
-            confirmacion.append('Firmado valida')
-            return render(request, t, {'username': username,
-                                        'confirmacion': confirmacion})
-            #except:
-            #    errores.append('Firma invalida')
-            #    return render(request, t, {'username': username,
-            #                                'errores': errores})
+            try:
+                key_public = codigo.convertir_bytes_llave_publica(key_public)
+                key_public.verify(file_firma_bytes, file_bytes, ec.ECDSA(hashes.SHA256()))
+                confirmacion.append('Firmado valida')
+                return render(request, t, {'username': username,
+                                            'confirmacion': confirmacion})
+            except:
+                errores.append('Firma invalida')
+                return render(request, t, {'username': username,
+                                            'errores': errores})
 
 @login_request
 def logout_view(request):
