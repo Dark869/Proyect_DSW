@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'styles/signatureFile.css' %}">
 {% endblock %}
 {% block scripts %}
-<script src="{% static 'scripts/signatureFile.js' %}"></script>
+
 {% endblock %}
 
 {% block encabezado %}Firmar archivo{% endblock %}
@@ -14,7 +14,7 @@
 {% block contenido %}
 <div class="row container justify-content-center">
     <div class="col-md-6 d-flex flex-column align-items-center">
-        <form action="" method="post" class="w-100" id="form">
+        <form action="" method="post" class="w-100" id="form" enctype="multipart/form-data">
             {% csrf_token %}
             <div id="upload-file" class="row justify-content-center m-4">
                 <div class="col-md-12 text-center m-2">
@@ -47,6 +47,16 @@
                     
                 </div>
             </div>
+            {% if errores %}
+            <div id="errores" class="alert alert-danger mt-3">
+                <strong>Errores:</strong>
+                <ul id="lista-errores" class="mb-0">
+                    {% for error in errores %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
         </form>
     </div>
 </div>

@@ -9,6 +9,6 @@ class User(models.Model):
 
 class Keys(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
-    private_key_file = models.TextField()
-    public_key_file = models.TextField()
-    iv = models.TextField()
+    private_key_file = models.BinaryField()
+    public_key_file = models.BinaryField()
+    iv = models.BinaryField()

@@ -39,6 +39,16 @@
                 </ul>
             </div>
         {% endif %}
+        {% if confirmacion %}
+            <div id="confirmacion" class="alert alert-danger mt-3">
+                <strong>confirmacion:</strong>
+                <ul id="lista-errores" class="mb-0">
+                    {% for veri in confirmacion %}
+                        <li>{{ veri }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </form>
 </div>  
 {% endblock %}

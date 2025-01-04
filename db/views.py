@@ -42,6 +42,7 @@ def register(request):
             #Generacion de llaves
             key_private = codigo.generar_llave_privada()
             key_public = codigo.generar_llave_publica(key_private)
+            key_public = codigo.convertir_llave_publica_bytes(key_public)
             #Cifrar llave privada
             llave_AES = codigo.generar_llave_aes(passw)
             iv = codigo.os.urandom(16)
