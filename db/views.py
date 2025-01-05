@@ -1,13 +1,9 @@
 #Librerias de django
-from django.http import HttpResponse
-from django.template import Template, Context
 from django.shortcuts import render, redirect
 from db import models
 #Llamada a funciones
-import Proyect_DSW.settings as config
 import Proyect_DSW.controllers.codigos as codigo
 #Decorador
-from Proyect_DSW.controllers.decorator import login_request
 
 #=============== Funcion de registro ===================
 def register(request):
