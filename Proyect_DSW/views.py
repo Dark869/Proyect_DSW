@@ -5,14 +5,10 @@ from django.core.files.base import ContentFile
 import mimetypes
 from .controllers.decorator import login_request
 from db import models
-import Proyect_DSW.settings as config
 import Proyect_DSW.controllers.codigos as codigo
 #Librerias para validar firma
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
-import os
-
-from .controllers.signFile import sing_file
 
 @login_request
 def index_view(request):
@@ -30,7 +26,7 @@ def home_view(request):
         file = request.FILES.get('file')
         passwd = passwd.strip()
         errores = []
-        if not passwd:
+        if not passwd:  
             errores.append('Campos no pueden ir vacios')
             return render(request, t, {'username': username,
                                        'errores': errores})
@@ -71,7 +67,6 @@ def home_view(request):
     else:
         file = request.POST.get('file')
         passwd = request.POST.get('passwd')
-        sing_file(passwd, file, username)
         return render(request, 'signatureFile.html', {'username': username})
 
 
