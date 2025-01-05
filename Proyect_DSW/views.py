@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
 import os
 
+from .controllers.signFile import sing_file
 
 @login_request
 def index_view(request):
@@ -62,6 +63,17 @@ def home_view(request):
                 return render(request, t, {'username': username,
                                             'errores': errores})
             
+
+    username = request.session.get('user')
+
+    if request.method == 'GET':
+        return render(request, 'signatureFile.html', {'username': username})
+    else:
+        file = request.POST.get('file')
+        passwd = request.POST.get('passwd')
+        sing_file(passwd, file, username)
+        return render(request, 'signatureFile.html', {'username': username})
+
 
 @login_request
 def gestorLLaves_view(request):

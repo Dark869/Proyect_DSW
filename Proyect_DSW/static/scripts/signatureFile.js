@@ -21,7 +21,6 @@ $(function() {
     }
 
     $('#form').on('submit', function(event) {
-        event.preventDefault();
 
         let withErrors = false;
         $('#box-errors').empty();
@@ -42,14 +41,8 @@ $(function() {
             $('#passwd').removeClass('is-invalid');
         }
 
-        if (!isSafeInput($('#passwd').val())) {
-            $('#passwd').addClass('is-invalid');
-            $('#box-errors').append(showAlert('Por favor, ingresa una contraseña válida.'));
-            withErrors = true;
-        }
-
-        if (!withErrors) {
-            this.submit();
+        if (withErrors) {
+            event.preventDefault();
         }
     });
 
