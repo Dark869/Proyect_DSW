@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'styles/register.css' %}">
 {% endblock %}
 {% block scripts %}
-<script src="{% static 'scripts/register.js' %}"></script>
+<script src="/static/scripts/register.js"></script>
 {% endblock %}
 
 {% block encabezado %}Registro{% endblock %}
@@ -14,7 +14,7 @@
 {% block contenido %}
 <div class="row container">
     <div class="col-md-12 d-flex justify-content-center">
-        <form action="/register/" method="POST" class="w-100">
+        <form action="/register/" method="POST" class="w-100" id="formulario">
             {% csrf_token %}
             <div class="row m-4">
                 <div class="col-md-12">
@@ -44,7 +44,7 @@
                 <div class="col-md-12">
                     <label for="name" class="text-white">Correo electronico:</label>
                     <input type="email" name="mail" id="mail" class="form-control">
-                </div>
+                </div>yy
             </div>
             <div class="row m-4 text-center">
                 <div class="col-md-12">
@@ -61,6 +61,10 @@
                 </ul>
             </div>
             {% endif %}
+            <div style="display:none" id="mistakes" class="alert alert-warning alert-dismissible text-black">
+                <strong>Errores Jquery:</strong>
+                <ul id="lista_errores"></ul>
+            </div> 
         </form>
     </div>
     <div class="col-md-12 text-center mt-3">

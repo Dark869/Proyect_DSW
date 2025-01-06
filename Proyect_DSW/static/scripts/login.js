@@ -12,14 +12,14 @@ $(document).ready(function() {
     $("#formulario").on("submit", function(event) {
         let listaErrores = new Array();
         let con_errores = false;
+        const n = $("#name").val();
         const p = $("#passwd").val();
-        const f = $("#file").val();
-        if (es_campo_vacio(p)) {
-                listaErrores.push("No pasaste CONTRASEÑA");
+        if (es_campo_vacio(n)) {
+                listaErrores.push("No pasaste USUARIO");
                 con_errores = true;
         }
-        if (es_campo_vacio(f)) {
-                listaErrores.push("No pasaste ARCHIVO");
+        if (es_campo_vacio(p)) {
+                listaErrores.push("No pasaste CONTRASEÑA");
                 con_errores = true;
         }
         if (con_errores) {

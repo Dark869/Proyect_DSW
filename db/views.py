@@ -18,6 +18,9 @@ import os
 import hashlib
 
 # Create your views here.
+def verificarFirma(request):
+    html = "verificarFirmas.html"
+    return render(request, html)
 
 def login(request):
     t = 'login.html'
