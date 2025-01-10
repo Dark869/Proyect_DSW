@@ -152,7 +152,7 @@ def verificarFirma_view(request):
         else:
             user = models.User.objects.get(nick=user)
             key = models.Keys.objects.get(user=user)
-            caducidad = key.caducidad.replace(tzinfo=None)
+            caducidad = key.caducidad
             if timezone.now() < caducidad:
                 key_public = key.public_key_file
                 file_bytes = file.read()
