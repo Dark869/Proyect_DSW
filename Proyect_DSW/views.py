@@ -9,6 +9,9 @@ import Proyect_DSW.controllers.codigos as codigo
 #Librerias para validar firma
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
+#Libreria para tiempo
+from datetime import datetime
+from datetime import timedelta
 
 @login_request
 def index_view(request):
@@ -41,21 +44,27 @@ def home_view(request):
         else:
             user = models.User.objects.get(nick=username, passwd=passwd_cifrado)
             key = models.Keys.objects.get(user=user)
-            key_private_cifrada = key.private_key_file
-            key_public = key.public_key_file
-            iv = key.iv
-            file_bytes = file.read()
-            file_firmado = codigo.firmar(file_bytes, key_private_cifrada, passwd, iv)
-            try:
-                key_public = codigo.convertir_bytes_llave_publica(key_public)
-                key_public.verify(file_firmado, file_bytes, ec.ECDSA(hashes.SHA256()))
-                response = HttpResponse(ContentFile(file_firmado))
-                content_type, encoding = mimetypes.guess_type(file.name)
-                response['Content-Type'] = content_type
-                response['Content-Disposition'] = f'attachment; filename="{file.name}_firmado"'
-                return response
-            except:
-                errores.append('Error al firmar')
+            caducidad = key.caducidad
+            if datetime.now() < caducidad:
+                key_private_cifrada = key.private_key_file
+                key_public = key.public_key_file
+                iv = key.iv
+                file_bytes = file.read()
+                file_firmado = codigo.firmar(file_bytes, key_private_cifrada, passwd, iv)
+                try:
+                    key_public = codigo.convertir_bytes_llave_publica(key_public)
+                    key_public.verify(file_firmado, file_bytes, ec.ECDSA(hashes.SHA256()))
+                    response = HttpResponse(ContentFile(file_firmado))
+                    content_type, encoding = mimetypes.guess_type(file.name)
+                    response['Content-Type'] = content_type
+                    response['Content-Disposition'] = f'attachment; filename="{file.name}_firmado"'
+                    return response
+                except:
+                    errores.append('Error al firmar')
+                    return render(request, t, {'username': username,
+                                                'errores': errores})
+            else:
+                errores.append('Llave caducada, cree otra')
                 return render(request, t, {'username': username,
                                             'errores': errores})
             
@@ -103,12 +112,13 @@ def gestorLLaves_view(request):
             key_private = codigo.generar_llave_privada()
             key_public = codigo.generar_llave_publica(key_private)
             key_public = codigo.convertir_llave_publica_bytes(key_public)
+            caducidad = datetime.now() + timedelta(minutes=10)
             #Cifrar llave privada
             llave_AES = codigo.generar_llave_aes(passwod)
             iv = codigo.os.urandom(16)
             cifrado = codigo.cifrar(key_private, llave_AES, iv)
             #Guardar nuevas llaves
-            key_new = models.Keys(user=user, private_key_file= cifrado, public_key_file=key_public, iv= iv)
+            key_new = models.Keys(user=user, private_key_file= cifrado, public_key_file=key_public, iv= iv, caducidad= caducidad)
             key_new.save()
             confirmacion.append('Nuevo par de llaves generados exitosamente')
             return render(request, t, {'username': username,
@@ -141,20 +151,25 @@ def verificarFirma_view(request):
         else:
             user = models.User.objects.get(nick=user)
             key = models.Keys.objects.get(user=user)
-            key_public = key.public_key_file
-            file_bytes = file.read()
-            file_firma_bytes = file_firmado.read()
-            try:
-                key_public = codigo.convertir_bytes_llave_publica(key_public)
-                key_public.verify(file_firma_bytes, file_bytes, ec.ECDSA(hashes.SHA256()))
-                confirmacion.append('Firmado valida')
-                return render(request, t, {'username': username,
-                                            'confirmacion': confirmacion})
-            except:
-                errores.append('Firma invalida')
+            caducidad = key.caducidad
+            if datetime.now() < caducidad:
+                key_public = key.public_key_file
+                file_bytes = file.read()
+                file_firma_bytes = file_firmado.read()
+                try:
+                    key_public = codigo.convertir_bytes_llave_publica(key_public)
+                    key_public.verify(file_firma_bytes, file_bytes, ec.ECDSA(hashes.SHA256()))
+                    confirmacion.append('Firmado valida')
+                    return render(request, t, {'username': username,
+                                                'confirmacion': confirmacion})
+                except:
+                    errores.append('Firma invalida')
+                    return render(request, t, {'username': username,
+                                                'errores': errores})
+            else:
+                errores.append('Llave caducada')
                 return render(request, t, {'username': username,
                                             'errores': errores})
-
 @login_request
 def logout_view(request):
     request.session.flush()  
