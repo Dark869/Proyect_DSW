@@ -1,16 +1,15 @@
 #Librerias de django
-from django.http import HttpResponse
-from django.template import Template, Context
 from django.shortcuts import render, redirect
 from db import models
 #Llamada a funciones
-import Proyect_DSW.settings as config
 import Proyect_DSW.controllers.codigos as codigo
 #Decorador
-from Proyect_DSW.controllers.decorator import login_request
 
 #=============== Funcion de registro ===================
 def register(request):
+    if request.session.get('logged'):
+        return redirect('/')
+
     t = 'register.html'
     if request.method == 'GET':
         return render(request, t)
@@ -58,6 +57,9 @@ def register(request):
 #========== Funcion de login ===============
 
 def login(request):
+    if request.session.get('logged'):
+        return redirect('/')
+    
     t = 'login.html'
     if request.method == 'GET':
         return render(request, t)

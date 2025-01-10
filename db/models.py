@@ -12,3 +12,4 @@ class Keys(models.Model):
     private_key_file = models.BinaryField()
     public_key_file = models.BinaryField()
     iv = models.BinaryField()
+    caducidad = models.DateTimeField()
