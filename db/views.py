@@ -7,6 +7,9 @@ import Proyect_DSW.controllers.codigos as codigo
 
 #=============== Funcion de registro ===================
 def register(request):
+    if request.session.get('logged'):
+        return redirect('/')
+
     t = 'register.html'
     if request.method == 'GET':
         return render(request, t)
@@ -54,6 +57,9 @@ def register(request):
 #========== Funcion de login ===============
 
 def login(request):
+    if request.session.get('logged'):
+        return redirect('/')
+    
     t = 'login.html'
     if request.method == 'GET':
         return render(request, t)
