@@ -44,7 +44,7 @@ def home_view(request):
         else:
             user = models.User.objects.get(nick=username, passwd=passwd_cifrado)
             key = models.Keys.objects.get(user=user)
-            caducidad = key.caducidad
+            caducidad = key.caducidad.replace(tzinfo=None)
             if datetime.now() < caducidad:
                 key_private_cifrada = key.private_key_file
                 key_public = key.public_key_file
@@ -151,7 +151,7 @@ def verificarFirma_view(request):
         else:
             user = models.User.objects.get(nick=user)
             key = models.Keys.objects.get(user=user)
-            caducidad = key.caducidad
+            caducidad = key.caducidad.replace(tzinfo=None)
             if datetime.now() < caducidad:
                 key_public = key.public_key_file
                 file_bytes = file.read()
