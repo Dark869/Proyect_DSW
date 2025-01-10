@@ -1,4 +1,4 @@
-{% extends "PagesNoProtected.html" %}
+{% extends "index.html" %}
 {% block titulo %}Verificación de firma{% endblock %}
 {% load static %}
 {% block estilos %}
@@ -10,13 +10,13 @@
     <div class="col-md-12 d-flex justify-content-center">
         <form action="/login/" method="POST" class="w-100">
             {% csrf_token %}
-            <div class="row m-4 text-center">
-                <div class="col pg-3">
+            <div class="row m-5 text-center">
+                <div class="col pg-5">
                         <label for="name" class="text-white"><h4>Subir Archivo</h4></label>
                         <input type="file" name="archivo" id="archivo" class="form-control">
                         <br>
                 </div>
-                <div class="col pg-3">
+                <div class="col pg-5">
                 <label for="name" class="text-white"><h4>Subir Firma</h4></label>
                 <input type="file" name="firma" id="firma" class="form-control">
                 </div>
@@ -46,4 +46,3 @@
     </div>
 </div>
 {% endblock %}
-
