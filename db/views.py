@@ -4,6 +4,10 @@ from db import models
 #Llamada a funciones
 import Proyect_DSW.controllers.codigos as codigo
 #Decorador
+from Proyect_DSW.controllers.decorator import login_request
+#Libreria para tiempo
+from datetime import datetime
+from datetime import timedelta
 
 #=============== Funcion de registro ===================
 def register(request):
@@ -42,6 +46,8 @@ def register(request):
             key_private = codigo.generar_llave_privada()
             key_public = codigo.generar_llave_publica(key_private)
             key_public = codigo.convertir_llave_publica_bytes(key_public)
+            #Creacion de vida util de llave
+            caducidad = datetime.now() + timedelta(minutes=10)
             #Cifrar llave privada
             llave_AES = codigo.generar_llave_aes(passw)
             iv = codigo.os.urandom(16)
@@ -50,7 +56,7 @@ def register(request):
             passwd_cifrado = codigo.password_hash(passw)
             usuario = models.User(full_name = name, nick = nick, email = email, passwd = passwd_cifrado)
             usuario.save()
-            keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv)
+            keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv, caducidad= caducidad)
             keys.save()
             return redirect('/login')
         
