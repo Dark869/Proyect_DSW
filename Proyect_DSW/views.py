@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives import hashes
 #Libreria para tiempo
 from datetime import datetime
 from datetime import timedelta
-#from django.utils import timezone
+from django.utils import timezone
 
 @login_request
 def index_view(request):
