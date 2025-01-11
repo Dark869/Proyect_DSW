@@ -1,56 +1,93 @@
-$(function() {
-
-    function generar_listado_errores(errores) {
-	let lista = "";
-	for(let error of errores) {
-	    lista += "<li>" + error + "</li>";
-	}
-	return lista;
+$(function () {
+    function showAlert(message) {
+        return `
+        <div class="alert alert-danger" role="alert">
+          ${message}
+        </div>`;
     }
 
-    function politica_pass(passw){
-        exRegular = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
-        if (exRegular.test(passw)){
-            return false;
+    function isEmpty(input) {
+        return input.val().trim() === "";
+    }
+
+    function isSafeInput(input) {
+        const regex = /^[_\-.@]*$/;
+        return regex.test(input.val());
+    }
+
+    function hasUpperCase(input) {
+        const regex = /[A-Z]/;
+        return regex.test(input.val());
+    }
+
+    function hasNumber(input) {
+        const regex = /[0-9]/;
+        return regex.test(input.val());
+    }
+
+    $('#formulario').on('submit', function (event) {
+        let withErrors = false;
+        $('#box-errors').empty();
+
+        if (isEmpty($('#name'))) {
+            $('#name').addClass('is-invalid');
+            $('#box-errors').append(showAlert('El campo nombre completo no puede ir vacío.'));
+            withErrors = true;
         } else {
-            return true;
+            $('#name').removeClass('is-invalid');
         }
-    }
 
-    function es_campo_vacio(campo) {
-        return campo.value.trim() == "";	
-    }
+        if (isEmpty($('#nick'))) {
+            $('#nick').addClass('is-invalid');
+            $('#box-errors').append(showAlert('El campo nombre de usuario no puede ir vacío.'));
+            withErrors = true;
+        } else {
+            $('#nick').removeClass('is-invalid');
+        }
 
-    $(document).ready(function(){
-        $("#formulario").on("submit", function(evento) {
-            let errores = new Array();
-            
-            if(es_campo_vacio($("#name").val())) {		
-                errores.push("No pasaste el nombre");
-            }
-            if(es_campo_vacio($("#nick").val())) {		
-                errores.push("No pasaste el nick");
-            }
-            if(es_campo_vacio($("#passwd").val())) {		
-                errores.push("No pasaste la contraseña");
-            }
-            if(es_campo_vacio($("#confirmPasswd").val())) {		
-                errores.push("No pasaste la verificacion de contraseña");	
-            }
-            if(es_campo_vacio($("#mail").val())) {		
-                errores.push("No pasaste el correo");	
-            }
+        if (isEmpty($('#mail'))) {
+            $('#mail').addClass('is-invalid');
+            $('#box-errors').append(showAlert('El campo correo electrónico no puede ir vacío.'));
+            withErrors = true;
+        } else {
+            $('#mail').removeClass('is-invalid');
+        }
 
-            if(politica_pass($("#passwd").val())) {
-                errores.push("La contraseña debe tener al menos 12 caracteres, una mayúscula, un número y un caracter especial.");    
-            }
-            if(errores.length != 0) {
-                let lista_html = generar_listado_errores(errores);
-                $("#lista-errors").html(lista_html);
-                $("#errors").fadeIn(2000).fadeOut(5000);
-                evento.preventDefault();
-            }
-        });
+        const passwd = $('#passwd');
+        if (isEmpty(passwd)) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('El campo contraseña no puede ir vacío.'));
+            withErrors = true;
+        } else if (passwd.val().length < 12) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('La contraseña debe tener al menos 12 caracteres.'));
+            withErrors = true;
+        } else if (!hasUpperCase(passwd)) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('La contraseña debe tener al menos una letra mayúscula.'));
+            withErrors = true;
+        } else if (!hasNumber(passwd)) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('La contraseña debe tener al menos un número.'));
+            withErrors = true;
+        } else if (isSafeInput(passwd)) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('La contraseña solo puede contener los caracteres _, -, ., @.'));
+            withErrors = true;
+        } else {
+            passwd.removeClass('is-invalid');
+        }
+
+        if ($('#passwd').val() !== $('#confirmPasswd').val()) {
+            $('#confirmPasswd').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Las contraseñas no coinciden.'));
+            withErrors = true;
+        } else {
+            $('#confirmPasswd').removeClass('is-invalid');
+        }
+
+        if (withErrors) {
+            event.preventDefault();
+        }
     });
-
 });

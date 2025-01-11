@@ -2,7 +2,6 @@
 {% block titulo %}Gestión de Llaves{% endblock %}
 {% load static %}
 {% block estilos %}
-<link rel="stylesheet" href="{% static 'styles/login.css' %}">
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'scripts/newkeys.js' %}"></script>
@@ -24,10 +23,10 @@
 	    <div class="col pg-3">
 		    <button type="submit" name="generarLlaves" id="generarLlaves" class="btn btn-info">GENERAR NUEVO PAR DE LLAVES</button>
 	    </div>
-        <div style="display:none" id="errors" class="alert alert-danger mt-3">
-            <strong>Errores:</strong>
-            <ul id="lista-errors">  
-            </ul>
+        <div id="box-errors" class="row justify-content-center m-2">
+            <div class="col-md-12 text-center">
+                
+            </div>
         </div>
         {% if errores %}
             <div id="errores" class="alert alert-danger mt-3">
@@ -40,7 +39,7 @@
             </div>
         {% endif %}
         {% if confirmacion %}
-            <div id="confirmacion" class="alert alert-danger mt-3">
+            <div id="confirmacion" class="alert alert-success mt-3">
                 <strong>confirmacion:</strong>
                 <ul id="lista-errores" class="mb-0">
                     {% for veri in confirmacion %}
