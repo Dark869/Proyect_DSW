@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives import hashes
 #Libreria para tiempo
 from datetime import datetime
 from datetime import timedelta
+from django.utils import timezone
 
 @login_request
 def index_view(request):
@@ -44,8 +45,8 @@ def home_view(request):
         else:
             user = models.User.objects.get(nick=username, passwd=passwd_cifrado)
             key = models.Keys.objects.get(user=user)
-            caducidad = key.caducidad.replace(tzinfo=None)
-            if datetime.now() < caducidad:
+            caducidad = key.caducidad
+            if timezone.now() < caducidad:
                 key_private_cifrada = key.private_key_file
                 key_public = key.public_key_file
                 iv = key.iv
@@ -151,8 +152,8 @@ def verificarFirma_view(request):
         else:
             user = models.User.objects.get(nick=user)
             key = models.Keys.objects.get(user=user)
-            caducidad = key.caducidad.replace(tzinfo=None)
-            if datetime.now() < caducidad:
+            caducidad = key.caducidad
+            if timezone.now() < caducidad:
                 key_public = key.public_key_file
                 file_bytes = file.read()
                 file_firma_bytes = file_firmado.read()
