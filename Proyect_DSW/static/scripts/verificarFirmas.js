@@ -1,41 +1,56 @@
 $(function() {
 
-    function generar_listado_errores(errores) {
-        let lista = "";
-        for(let error of errores) {
-            lista += "<li>" + error + "</li>";
+    function isEmpty(input) {
+        return input.val().trim() === "";
+    }
+
+    function isSafeInput(input) {
+        const regex = /^[A-Za-z0-9_\.\-@]*$/;
+        return regex.test(input.val());
+    }
+
+    function showAlert(message) {
+        return `
+        <div class="alert alert-danger" role="alert">
+          ${message}
+        </div>`;
+    }
+
+    $('#formulario').on('submit', function(event) {
+        let withErrors = false;
+        $('#box-errors').empty();
+
+        if (isEmpty($('#archivo'))) {
+            $('#archivo').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Campo archivo vacio.'));
+            withErrors = true;
+        } else {
+            $('#archivo').removeClass('is-invalid');
         }
-        return lista;
-    }
 
-    function es_campo_vacio(campo) {
-        return campo.value.trim() == "";
-    }
+        if (isEmpty($('#firma'))) {
+            $('#firma').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Campo firma vacio.'));
+            withErrors = true;
+        } else {
+            $('#firma').removeClass('is-invalid');
+        }
 
-    $(document).ready(function(){
-        $("#formulario").on("submit", function(evento) {
-            let errores = new Array();
+        if (isEmpty($('#user'))) {
+            $('#user').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Campo usuario vacio.'));
+            withErrors = true;
+        } else if (!isSafeInput($('#user'))) {
+            $('#user').addClass('is-invalid');
+            $('#box-errors').append(showAlert('El usuario no existe.'));
+            withErrors = true;
+        } else {
+            $('#user').removeClass('is-invalid');
+        }
 
-            if(es_campo_vacio($("#archivo").val())) {
-                errores.push("No pasaste el ARCHIVO");
-                con_errores = true;
-            }
-            if(es_campo_vacio($("#firma").val())) {
-                errores.push("No pasaste la FIRMA");
-                con_errores = true;
-            }
-            if(es_campo_vacio($("#user").val())) {
-                errores.push("No pasaste el USUARIO");
-                con_errores = true;
-            }
-            if(errores.length != 0) {
-                let lista_html = generar_listado_errores(errores);
-                $("#lista-errors").html(lista_html);
-                $("#errors").fadeIn(2000).fadeOut(5000);
-                evento.preventDefault();
-            }
-        });
+        if (withErrors) {
+            event.preventDefault();
+        }
     });
 
 });
-~    

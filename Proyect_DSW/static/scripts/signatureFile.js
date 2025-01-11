@@ -16,8 +16,8 @@ $(function() {
     }
 
     function isSafeInput(input) {
-        const regex = /^[a-zA-Z0-9_\-.@ ]*$/;
-        return regex.test(input);
+        const regex = /^[A-Za-z0-9_\.\-@]*$/;
+        return regex.test(input.val());
     }
 
     $('#form').on('submit', function(event) {
@@ -25,7 +25,7 @@ $(function() {
         let withErrors = false;
         $('#box-errors').empty();
 
-        if (isFileInputEmpty( $('#file'))) {
+        if (isFileInputEmpty($('#file'))) {
             $('#file').addClass('is-invalid');
             $('#box-errors').append(showAlert('Por favor, selecciona un archivo para firmar.'));
             withErrors = true;
@@ -36,6 +36,10 @@ $(function() {
         if (isEmpty($('#passwd'))) {
             $('#passwd').addClass('is-invalid');
             $('#box-errors').append(showAlert('Por favor, ingresa una contraseña.'));
+            withErrors = true;
+        } else if (!isSafeInput($('#passwd'))) { 
+            $('#passwd').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Contraseña incorrecta.'));
             withErrors = true;
         } else {
             $('#passwd').removeClass('is-invalid');
