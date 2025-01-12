@@ -1,32 +1,41 @@
 $(function() {
 
-    function generar_listado_errores(errores) {
-	let lista = "";
-	for(let error of errores) {
-	    lista += "<li>" + error + "</li>";
-	}
-	return lista;
+    function isEmpty(input) {
+        return input.val().trim() === "";
     }
 
-    function es_campo_vacio(campo) {
-        return campo.value.trim() == "";	
+    function isSafeInput(input) {
+        const regex = /^[A-Za-z0-9_\.\-@]*$/;
+        return regex.test(input.val());
     }
 
-    $(document).ready(function(){
-        $("#formulario").on("submit", function(evento) {
-            let errores = new Array();
+    function showAlert(message) {
+        return `
+        <div class="alert alert-danger" role="alert">
+          ${message}
+        </div>`;
+    }
 
-            if(es_campo_vacio($("#pass").val())) {		
-                errores.push("No pasaste la contraseña");
-            }
+    $('#formulario').on('submit', function(event) {
+        let withErrors = false;
+        $('#box-errors').empty();
 
-            if(errores.length != 0) {
-                let lista_html = generar_listado_errores(errores);
-                $("#lista-errors").html(lista_html);
-                $("#errors").fadeIn(2000).fadeOut(5000);
-                evento.preventDefault();
-            }
-        });
+        if (isEmpty($('#passwd'))) {
+            $('#passwd').addClass('is-invalid');
+            $('#box-errors').append(showAlert('No pasaste la contraseña.'));
+            withErrors = true;
+        } else if (!isSafeInput($('#passwd'))) {
+            $('#passwd').addClass('is-invalid');
+            $('#box-errors').append(showAlert('Contraseña incorrecta.'));
+            withErrors = true;
+        } else {
+            $('#passwd').removeClass('is-invalid');
+        }
+
+        if (withErrors) {
+            event.preventDefault();
+        }
     });
 
 });
+

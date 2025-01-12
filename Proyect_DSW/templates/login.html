@@ -3,7 +3,6 @@
 {% block titulo %}Inicio de sesión{% endblock %}
 {% load static %}
 {% block estilos %}
-<link rel="stylesheet" href="{% static 'styles/login.css' %}">
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'scripts/login.js' %}"></script>
@@ -18,14 +17,14 @@
             {% csrf_token %}
             <div class="row m-4">
                 <div class="col-md-12">
-                    <label for="name" class="text-white">Nick del usuario:</label>
-                    <input type="text" name="nick" id="nick" class="form-control" required>
+                    <label for="name" class="text-white">Nombre de usuario:</label>
+                    <input type="text" name="nick" id="nick" class="form-control">
                 </div>
             </div>
             <div class="row m-4">
                 <div class="col-md-12">
                     <label for="passwd" class="text-white">Contraseña:</label>
-                    <input type="password" name="passwd" id="passwd" class="form-control" required>
+                    <input type="password" name="passwd" id="passwd" class="form-control">
                 </div>
             </div>
             <div class="row m-4 text-center">
@@ -33,10 +32,10 @@
                     <button type="submit" name="submit" id="submit" class="btn btn-primary">Iniciar sesión</button>
                 </div>
             </div>
-            <div style="display:none" id="errors" class="alert alert-danger mt-3">
-                <strong>Errores:</strong>
-                <ul id="lista-errors">  
-                </ul>
+            <div id="box-errors" class="row justify-content-center m-2">
+                <div class="col-md-12 text-center">
+                    
+                </div>
             </div>
             {% if errores %}
             <div id="errores" class="alert alert-danger mt-3">
