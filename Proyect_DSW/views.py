@@ -5,7 +5,12 @@ from django.core.files.base import ContentFile
 import mimetypes
 from .controllers.decorator import login_request
 from db import models
-import Proyect_DSW.controllers.codigos as codigo
+import Proyect_DSW.controllers.password_policy as policy
+import Proyect_DSW.controllers.cifrado_AES as AES
+import Proyect_DSW.controllers.hash as hasheo
+import Proyect_DSW.controllers.keys as keys
+import Proyect_DSW.controllers.keys_controllers as controllers
+import os
 #Librerias para validar firma
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
@@ -35,7 +40,7 @@ def home_view(request):
             return render(request, t, {'username': username,
                                        'errores': errores})
         try:
-            passwd_cifrado = codigo.password_hash(passwd)
+            passwd_cifrado = hasheo.password_hash(passwd)
             models.User.objects.get(nick=username, passwd=passwd_cifrado)
         except:
             errores.append('Contraseña incorrecta')
@@ -51,16 +56,15 @@ def home_view(request):
                 key_public = key.public_key_file
                 iv = key.iv
                 file_bytes = file.read()
-                file_firmado = codigo.firmar(file_bytes, key_private_cifrada, passwd, iv)
-                try:
-                    key_public = codigo.convertir_bytes_llave_publica(key_public)
-                    key_public.verify(file_firmado, file_bytes, ec.ECDSA(hashes.SHA256()))
+                file_firmado = controllers.firmar(file_bytes, key_private_cifrada, passwd, iv)
+                key_public = keys.convertir_bytes_llave_publica(key_public)
+                if controllers.verificar(key_public, file_firmado, file_bytes):
                     response = HttpResponse(ContentFile(file_firmado))
                     content_type, encoding = mimetypes.guess_type(file.name)
                     response['Content-Type'] = content_type
                     response['Content-Disposition'] = f'attachment; filename="{file.name}_firmado"'
                     return response
-                except:
+                else:
                     errores.append('Error al firmar')
                     return render(request, t, {'username': username,
                                                 'errores': errores})
@@ -68,16 +72,6 @@ def home_view(request):
                 errores.append('Llave caducada, cree otra')
                 return render(request, t, {'username': username,
                                             'errores': errores})
-            
-
-    username = request.session.get('user')
-
-    if request.method == 'GET':
-        return render(request, 'signatureFile.html', {'username': username})
-    else:
-        file = request.POST.get('file')
-        passwd = request.POST.get('passwd')
-        return render(request, 'signatureFile.html', {'username': username})
 
 
 @login_request
@@ -97,7 +91,7 @@ def gestorLLaves_view(request):
             return render(request, t, {'username': username,
                                        'errores': errores})
         try:
-            passwd_cifrado = codigo.password_hash(passwod)
+            passwd_cifrado = hasheo.password_hash(passwod)
             models.User.objects.get(nick=username, passwd=passwd_cifrado)
         except:
             errores.append('Contraseña incorrecta')
@@ -110,14 +104,14 @@ def gestorLLaves_view(request):
             key_old = models.Keys.objects.get(user=user)
             key_old.delete()
             #Crear llaves
-            key_private = codigo.generar_llave_privada()
-            key_public = codigo.generar_llave_publica(key_private)
-            key_public = codigo.convertir_llave_publica_bytes(key_public)
+            key_private = keys.generar_llave_privada()
+            key_public = keys.generar_llave_publica(key_private)
+            key_public = keys.convertir_llave_publica_bytes(key_public)
             caducidad = datetime.now() + timedelta(minutes=10)
             #Cifrar llave privada
-            llave_AES = codigo.generar_llave_aes(passwod)
-            iv = codigo.os.urandom(16)
-            cifrado = codigo.cifrar(key_private, llave_AES, iv)
+            llave_AES = AES.generar_llave_aes(passwod)
+            iv = os.urandom(16)
+            cifrado = AES.cifrar(key_private, llave_AES, iv)
             #Guardar nuevas llaves
             key_new = models.Keys(user=user, private_key_file= cifrado, public_key_file=key_public, iv= iv, caducidad= caducidad)
             key_new.save()
@@ -132,7 +126,7 @@ def verificarFirma_view(request):
     if request.method == 'GET':
         return render(request, t, {'username': username})
     elif request.method == 'POST':
-        user = request.POST.get('nick', '')
+        user = request.POST.get('user', '')
         file = request.FILES.get('archivo')
         file_firmado = request.FILES.get('firma')
         user = user.strip()
@@ -157,14 +151,13 @@ def verificarFirma_view(request):
                 key_public = key.public_key_file
                 file_bytes = file.read()
                 file_firma_bytes = file_firmado.read()
-                try:
-                    key_public = codigo.convertir_bytes_llave_publica(key_public)
-                    key_public.verify(file_firma_bytes, file_bytes, ec.ECDSA(hashes.SHA256()))
+                key_public = keys.convertir_bytes_llave_publica(key_public)
+                if controllers.verificar(key_public, file_firma_bytes, file_bytes):
                     confirmacion.append('Firmado valida')
                     return render(request, t, {'username': username,
                                                 'confirmacion': confirmacion})
-                except:
-                    errores.append('Firma invalida')
+                else:
+                    errores.append('Error al firmar')
                     return render(request, t, {'username': username,
                                                 'errores': errores})
             else:
@@ -176,3 +169,87 @@ def logout_view(request):
     request.session.flush()  
 
     return redirect('/login/')
+
+#=============== Funcion de registro ===================
+def register(request):
+    if request.session.get('logged'):
+        return redirect('/')
+
+    t = 'register.html'
+    if request.method == 'GET':
+        return render(request, t)
+    elif request.method == 'POST':
+        name = request.POST.get('name', '')
+        nick = request.POST.get('nick', '')
+        passw = request.POST.get('passwd', '')
+        confirpasswd = request.POST.get('confirmPasswd', '')
+        email = request.POST.get('mail', '')
+        name = name.strip()
+        nick = nick.strip()
+        passw = passw.strip()
+        confirpasswd = confirpasswd.strip()
+        email = email.strip()
+        errores = []
+        if not name or not nick or not passw or not confirpasswd or not email:
+            errores.append('Los campos no deben ir vacios')
+        if passw != confirpasswd:
+            errores.append('Las contraseñas no son iguales')
+        if models.User.objects.filter(nick = nick).exists():
+            errores.append('Nick ya registrado')
+        if models.User.objects.filter(email = email).exists():
+            errores.append('Correo ya registrado')
+        if not policy.politica_pass(passw):
+            errores.append('La contraseña debe tener al menos 12 caracteres, una mayúscula, un número y un caracter especial.')
+        if errores:
+            return render(request, t, {'errores': errores})
+        else:
+            #Generacion de llaves
+            key_private = keys.generar_llave_privada()
+            key_public = keys.generar_llave_publica(key_private)
+            key_public = keys.convertir_llave_publica_bytes(key_public)
+            #Creacion de vida util de llave
+            caducidad = datetime.now() + timedelta(minutes=10)
+            #Cifrar llave privada
+            llave_AES = AES.generar_llave_aes(passw)
+            iv = os.urandom(16)
+            cifrado = AES.cifrar(key_private, llave_AES, iv)
+            #hashear contraseña
+            passwd_cifrado = hasheo.password_hash(passw)
+            usuario = models.User(full_name = name, nick = nick, email = email, passwd = passwd_cifrado)
+            usuario.save()
+            keys = models.Keys(user=usuario, private_key_file= cifrado, public_key_file=key_public, iv= iv, caducidad= caducidad)
+            keys.save()
+            return redirect('/login')
+        
+#========== Funcion de login ===============
+
+def login(request):
+    if request.session.get('logged'):
+        return redirect('/')
+    
+    t = 'login.html'
+    if request.method == 'GET':
+        return render(request, t)
+    elif request.method == 'POST':
+        nick = request.POST.get('nick', '')
+        passwd = request.POST.get('passwd', '')
+        nick = nick.strip()
+        passwd = passwd.strip()
+        errores = []
+        if not nick or not passwd:
+            errores.append('El usuario o contraseña no pueden estar vacíos')
+            return render(request, t, {'errores': errores})
+        try:
+            #hashear contraseña
+            passwd_cifrado = hasheo.password_hash(passwd)
+            models.User.objects.get(nick=nick, passwd=passwd_cifrado)
+        except:
+            errores.append('nick o contraseña incorrectos')
+            request.session['logged'] = False
+        
+        if errores:
+            return render(request, t, {'errores': errores})
+        else:
+            request.session['logged'] = True
+            request.session['user'] = nick
+            return redirect('/')
