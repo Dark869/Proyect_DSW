@@ -11,7 +11,7 @@ $(function () {
     }
 
     function isSafeInput(input) {
-        const regex = /^[_\-.@]*$/;
+        const regex = /^[A-Za-z0-9_\.\-@]*$/;
         return regex.test(input.val());
     }
 
@@ -70,10 +70,6 @@ $(function () {
             passwd.addClass('is-invalid');
             $('#box-errors').append(showAlert('La contraseña debe tener al menos un número.'));
             withErrors = true;
-        } else if (isSafeInput(passwd)) {
-            passwd.addClass('is-invalid');
-            $('#box-errors').append(showAlert('La contraseña solo puede contener los caracteres _, -, ., @.'));
-            withErrors = true;
         } else {
             passwd.removeClass('is-invalid');
         }
@@ -84,6 +80,12 @@ $(function () {
             withErrors = true;
         } else {
             $('#confirmPasswd').removeClass('is-invalid');
+        }
+
+        if (!isSafeInput(passwd)) {
+            passwd.addClass('is-invalid');
+            $('#box-errors').append(showAlert('La contraseña solo puede contener los caracteres _, -, ., @.'));
+            withErrors = true;
         }
 
         if (withErrors) {
