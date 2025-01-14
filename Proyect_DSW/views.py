@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from django.template import Template, Context
 from django.shortcuts import render, redirect
 from django.core.files.base import ContentFile
 import mimetypes
@@ -8,12 +7,9 @@ from db import models
 import Proyect_DSW.controllers.password_policy as policy
 import Proyect_DSW.controllers.cifrado_AES as AES
 import Proyect_DSW.controllers.hash as hasheo
-import Proyect_DSW.controllers.keys as keys
+import Proyect_DSW.controllers.keys as keysss
 import Proyect_DSW.controllers.keys_controllers as controllers
 import os
-#Librerias para validar firma
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import hashes
 #Libreria para tiempo
 from datetime import datetime
 from datetime import timedelta
@@ -57,7 +53,7 @@ def home_view(request):
                 iv = key.iv
                 file_bytes = file.read()
                 file_firmado = controllers.firmar(file_bytes, key_private_cifrada, passwd, iv)
-                key_public = keys.convertir_bytes_llave_publica(key_public)
+                key_public = keysss.convertir_bytes_llave_publica(key_public)
                 if controllers.verificar(key_public, file_firmado, file_bytes):
                     response = HttpResponse(ContentFile(file_firmado))
                     content_type, encoding = mimetypes.guess_type(file.name)
@@ -104,9 +100,9 @@ def gestorLLaves_view(request):
             key_old = models.Keys.objects.get(user=user)
             key_old.delete()
             #Crear llaves
-            key_private = keys.generar_llave_privada()
-            key_public = keys.generar_llave_publica(key_private)
-            key_public = keys.convertir_llave_publica_bytes(key_public)
+            key_private = keysss.generar_llave_privada()
+            key_public = keysss.generar_llave_publica(key_private)
+            key_public = keysss.convertir_llave_publica_bytes(key_public)
             caducidad = datetime.now() + timedelta(minutes=10)
             #Cifrar llave privada
             llave_AES = AES.generar_llave_aes(passwod)
@@ -151,7 +147,7 @@ def verificarFirma_view(request):
                 key_public = key.public_key_file
                 file_bytes = file.read()
                 file_firma_bytes = file_firmado.read()
-                key_public = keys.convertir_bytes_llave_publica(key_public)
+                key_public = keysss.convertir_bytes_llave_publica(key_public)
                 if controllers.verificar(key_public, file_firma_bytes, file_bytes):
                     confirmacion.append('Firmado valida')
                     return render(request, t, {'username': username,
@@ -204,9 +200,9 @@ def register(request):
             return render(request, t, {'errores': errores})
         else:
             #Generacion de llaves
-            key_private = keys.generar_llave_privada()
-            key_public = keys.generar_llave_publica(key_private)
-            key_public = keys.convertir_llave_publica_bytes(key_public)
+            key_private = keysss.generar_llave_privada()
+            key_public = keysss.generar_llave_publica(key_private)
+            key_public = keysss.convertir_llave_publica_bytes(key_public)
             #Creacion de vida util de llave
             caducidad = datetime.now() + timedelta(minutes=10)
             #Cifrar llave privada
